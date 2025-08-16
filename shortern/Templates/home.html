@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ShortenURL — Make links short & sweet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg: #0f172a;
+      --bg2: #111827;
+      --card: #0b1220;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --primary: #7c3aed;
+      --primary-600:#6d28d9;
+      --ring: rgba(124,58,237,.35);
+      --success:#10b981;
+      --error:#ef4444;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol";
+      color:var(--text);
+      background:
+        radial-gradient(1000px 600px at 10% -10%, rgba(124,58,237,.25), transparent 60%),
+        radial-gradient(900px 500px at 110% 10%, rgba(16,185,129,.15), transparent 60%),
+        linear-gradient(180deg, #0f172a 0%, #0b1220 100%);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:32px 16px;
+    }
+    .container{
+      width:100%;
+      max-width:880px;
+    }
+    .header{
+      text-align:center;
+      margin-bottom:24px;
+    }
+    .logo{
+      display:inline-flex;align-items:center;gap:10px;
+      margin-bottom:8px;
+    }
+    .logo-badge{
+      width:36px;height:36px;border-radius:10px;
+      background:
+        conic-gradient(from 210deg, #7c3aed, #06b6d4, #10b981, #7c3aed);
+      display:grid;place-items:center;
+      color:white;font-weight:700;
+      box-shadow: 0 8px 30px rgba(124,58,237,.35);
+    }
+    .title{
+      font-size:28px;font-weight:700;letter-spacing:.2px;
+    }
+    .subtitle{
+      color:var(--muted);font-size:15px;max-width:680px;margin:8px auto 0;
+    }
+
+    .card{
+      background: rgba(11,18,32,.7);
+      backdrop-filter: blur(12px);
+      border:1px solid rgba(124,58,237,.18);
+      box-shadow: 0 12px 40px rgba(0,0,0,.35);
+      border-radius:16px;
+      padding:20px;
+    }
+    .form{
+      display:flex;gap:12px;flex-wrap:wrap;
+    }
+    .field{
+      position:relative;flex:1 1 480px;min-width:240px;
+    }
+    .field input{
+      width:100%;
+      padding:16px 16px 16px 46px;
+      border-radius:12px;
+      border:1px solid rgba(148,163,184,.25);
+      background:#0b1220;
+      color:var(--text);
+      font-size:15px;
+      outline:none;
+      transition: box-shadow .15s, border-color .15s, transform .05s;
+    }
+    .field input:focus{
+      box-shadow:0 0 0 6px var(--ring);
+      border-color: var(--primary);
+    }
+    .field .icon{
+      position:absolute;left:14px;top:50%;transform:translateY(-50%);
+      color:#94a3b8;
+    }
+    .btn{
+      flex:0 0 auto;
+      padding:14px 20px;
+      border-radius:12px;
+      border:0;
+      background:linear-gradient(135deg, var(--primary), var(--primary-600));
+      color:white;font-weight:700;letter-spacing:.2px;
+      cursor:pointer;
+      transition: transform .05s ease, filter .15s ease;
+      box-shadow: 0 10px 24px rgba(124,58,237,.35);
+    }
+    .btn:hover{filter:brightness(1.05)}
+    .btn:active{transform:translateY(1px)}
+    .helper{
+      display:flex;gap:16px;align-items:center;justify-content:space-between;
+      margin-top:14px;color:var(--muted);font-size:13px;
+      flex-wrap:wrap;
+    }
+    .switch{
+      appearance:none;width:46px;height:26px;border-radius:999px;position:relative;
+      background:#1f2937;border:1px solid #374151;cursor:pointer;outline:none;
+      transition:background .2s,border-color .2s;
+    }
+    .switch:checked{background:#4f46e5;border-color:#4338ca}
+    .switch:before{
+      content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;
+      background:white;transition:left .2s;
+    }
+    .switch:checked:before{left:23px}
+
+    .result{
+      margin-top:18px;padding:14px;border-radius:12px;
+      background: rgba(16,185,129,.08);
+      border:1px solid rgba(16,185,129,.35);
+      display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+    }
+    .result .link{
+      color:#d1fae5;font-weight:600;word-break:break-all;
+    }
+    .copy{
+      display:inline-flex;align-items:center;gap:8px;
+      background:transparent;border:1px solid rgba(148,163,184,.35);
+      color:var(--text);padding:10px 12px;border-radius:10px;cursor:pointer;
+      transition:background .15s,border-color .15s;
+    }
+    .copy:hover{background:#0f172a;border-color:#64748b}
+    .messages{margin-top:14px}
+    .msg{
+      padding:12px 14px;border-radius:10px;font-size:14px;margin-bottom:8px;
+      border:1px solid transparent;
+    }
+    .msg.success{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.35);color:#a7f3d0}
+    .msg.error{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.35);color:#fecaca}
+
+    footer{
+      margin-top:18px;text-align:center;color:var(--muted);font-size:12px;
+    }
+
+    @media (max-width:520px){
+      .title{font-size:24px}
+      .subtitle{font-size:14px}
+      .btn{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">
+        <div class="logo-badge">S</div>
+        <div class="title">ShortenURL</div>
+      </div>
+      <div class="subtitle">Turn long links into shareable, trackable short URLs in seconds.</div>
+    </div>
+
+    <div class="card">
+      <form class="form" method="post" action="">
+        {% csrf_token %}
+        <!-- If using Django forms -->
+        <!-- <div class="field">
+          <span class="icon">🔗</span>
+          {{ form.url }}
+        </div> -->
+
+        <!-- Or plain input -->
+        <div class="field">
+          <span class="icon">🔗</span>
+          <input name="url" type="url" placeholder="Paste a long URL (https://...)" required />
+        </div>
+
+        <button class="btn" type="submit">Shorten URL</button>
+      </form>
+
+      <div class="helper">
+        <div>Custom aliases, click tracking, and API coming soon.</div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input id="themeSwitch" class="switch" type="checkbox" />
+          <span>Dark glow</span>
+        </label>
+      </div>
+
+      <!-- Django messages -->
+      <div class="messages">
+        {% if messages %}
+          {% for message in messages %}
+            <div class="msg {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <!-- Result block -->
+      {% if short_url %}
+      <div class="result">
+        <div class="link" id="shortLink">{{ short_url }}</div>
+        <button class="copy" type="button" id="copyBtn" aria-label="Copy short URL">
+          <span>📋</span> Copy
+        </button>
+      </div>
+      {% endif %}
+    </div>
+
+    <footer>
+      © {{ year|default:2025 }} ShortenURL • Made By Sam
+    </footer>
+  </div>
+
+  <script>
+    // Optional: copy to clipboard
+    (function(){
+      var btn = document.getElementById('copyBtn');
+      var link = document.getElementById('shortLink');
+      if(btn && link){
+        btn.addEventListener('click', async function(){
+          try{
+            await navigator.clipboard.writeText(link.textContent.trim());
+            btn.textContent = 'Copied!';
+            setTimeout(()=> btn.textContent = '📋 Copy', 1200);
+          }catch(e){
+            alert('Copy failed');
+          }
+        });
+      }
+    })();
+
+    // Optional: playful theme toggle (intensify background glow)
+    (function(){
+      var sw = document.getElementById('themeSwitch');
+      if(!sw) return;
+      var body = document.body;
+      sw.addEventListener('change', function(){
+        if(sw.checked){
+          body.style.background =
+            'radial-gradient(1200px 700px at 10% -10%, rgba(124,58,237,.35), transparent 60%),'+
+            'radial-gradient(1000px 600px at 110% 10%, rgba(16,185,129,.25), transparent 60%),'+
+            'linear-gradient(180deg, #0d1326 0%, #08101f 100%)';
+        }else{
+          body.style.background =
+            'radial-gradient(1000px 600px at 10% -10%, rgba(124,58,237,.25), transparent 60%),'+
+            'radial-gradient(900px 500px at 110% 10%, rgba(16,185,129,.15), transparent 60%),'+
+            'linear-gradient(180deg, #0f172a 0%, #0b1220 100%)';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
